@@ -1,3 +1,9 @@
+Mongodb
+Username : everwintoolsbusiness
+Password : 7jTjqKPK8fxjPS2e
+MONGODB_URI=mongodb+srv://everwintoolsbusiness:7jTjqKPK8fxjPS2e@invoice-app.zbwjdua.mongodb.net/
+
+
 I want to build invoice app a online saas platform app using nextjs 14, for design using tailwind, for data saving use mongodb, which is have:
 1. GSTIN No. 07NFUPS1411B1Z9
 2. my company title i.e. EVERWIN TOOLS
