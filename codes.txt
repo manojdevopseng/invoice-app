@@ -1,0 +1,301 @@
+I want to build invoice app a online saas platform app using nextjs 14, for design using tailwind, for data saving use mongodb, which is have:
+1. GSTIN No. 07NFUPS1411B1Z9
+2. my company title i.e. EVERWIN TOOLS
+3. my company address. i.e. Extra 30/23, IInd Floor, Block-30 Extra Trilok Puri, Delhi-110091
+4. my company mobile number. i.e. 9716966506
+5. my company email address. i.e. everwintools2020@gmail.com
+6. Invoice No. (it will start from 251 and when the invoice successfully created, start from next invoice no.)
+7. Date (it will be generate automatically)
+8. Due Date 
+9. GR No. (it will have drop-down list)
+    (a) Verbal
+    (b) On Call
+10. Vehicle No.
+11. Transport (it will have drop-down list)
+    (a) By Hand
+    (b) By 
+12. State (it will have drop-down list and if not have please add option to add new city)
+    (i) Delhi
+    (ii) Noida
+    (iii) Maharashtra
+    (iv) Gujrat
+    (v) Gurugram
+    (vi) Haryana
+    (vii) Suraj 
+    (viii) Bhopal
+    (ix) Hyderabad
+    (x) Meerut
+    (xi) Pune
+    (xii) Indore
+    (xiii) Mumbai
+    (xiv) Uttar Pradesh
+13. State Pin (it will connect with state, if not added a Pin, add the option to add Pin)
+14. Place of Supply (Same as State)
+15. Add Buyer Details :
+      (a) M/s (when I select Buyer name it will filled up all details of Buyer Details, if I have no buyer please add the option to add all Buyers details)
+      (b) Address
+      (c) Party GSTIN No.
+      (d) PAN no.
+16. Create Table (inputs):
+      (a) Column:
+            (i) S.No.
+            (ii) Description of Goods)
+            (iii) HSN CODE
+            (iv) Qty.
+            (v) Unit Price
+            (vi) Amount (in Rs.) with two decimal
+      (b) Row:
+            (i) Total Sale value before adding GST
+            (ii) Discount (it will manual percentage)
+            (iii) S.G.S.T @ percentage  (if I.G.S.T contains 5%, 12%, 18%, 28% of these, then half of its percentage like 5% then 2.5%,  if 12% then 6%)
+            (iv) C.G.S.T @ percentage  (if I.G.S.T contains 5%, 12%, 18%, 28% of these, then half of its percentage like 5% then 2.5%,  if 12% then 6%)
+            (v) I.G.S.T @ percentage  (it will have dropdown percentage)
+                     (a) 5% 
+                     (b) 12% 
+                     (c) 18% 
+                     (d) 28%
+             (vi) Other Charges
+             (vii) Total sale after adding G.S.T (Formula : Total sale value before adding G.S.T - Discount + I.G.S.T)
+             (viii) Amount in Word
+             (ix) My company Bank details (also the add an option to add bank details if I will create new current account):
+                      (a) Bank: CANARA BANK
+                      (b) Branch: Mayur Vihar Phase-1, Delhi-110091
+                      (c) A/c No. : 2801201000725
+                      (d) IFSC: CNRB0002801
+                      (e) A/c Type: Current Account
+17. constant details in last row: 
+        (i) E.&.O.E
+              (a) All disputes Subject to Delhi Jurisdiction Only.
+              (b) Goods once sold will not be taken back only Exchanged.
+              (c) Interest @ 24% will be charged, if the bill is not paid on presentation
+        (ii) For: EVERWIN TOOLS
+        (iii) Customer Signature
+        (iv) Authorized Signature
+Now, when will this complete, I want to save file as the PDF, it will deploy on AWS using AWS amplify service
+
+ChatGPT
+ChatGPT
+To build a comprehensive online SaaS invoice platform using Next.js, Tailwind CSS, MongoDB, and deploying it on AWS using AWS Amplify, you can follow these steps:
+
+Project Setup
+Initialize Next.js Application
+
+Install Node.js and create a new Next.js application:
+bash
+Copy code
+npx create-next-app@latest invoice-app
+cd invoice-app
+Install Tailwind CSS:
+bash
+Copy code
+npm install -D tailwindcss@latest postcss@latest autoprefixer@latest
+npx tailwindcss init -p
+Configure tailwind.config.js and include Tailwind in your CSS:
+javascript
+Copy code
+module.exports = {
+  content: [
+    './pages/**/*.{js,ts,jsx,tsx}',
+    './components/**/*.{js,ts,jsx,tsx}',
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+css
+Copy code
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+Set Up MongoDB
+
+Use MongoDB Atlas for a cloud-hosted database.
+Install the MongoDB client:
+bash
+Copy code
+npm install mongodb
+Backend API
+Create API Routes for Invoice Management
+Create a file for database connection (lib/mongodb.js):
+
+javascript
+Copy code
+import { MongoClient } from 'mongodb';
+
+const uri = process.env.MONGODB_URI;
+const options = {};
+
+let client;
+let clientPromise;
+
+if (!process.env.MONGODB_URI) {
+  throw new Error('Please add your Mongo URI to .env.local');
+}
+
+if (process.env.NODE_ENV === 'development') {
+  if (!global._mongoClientPromise) {
+    client = new MongoClient(uri, options);
+    global._mongoClientPromise = client.connect();
+  }
+  clientPromise = global._mongoClientPromise;
+} else {
+  client = new MongoClient(uri, options);
+  clientPromise = client.connect();
+}
+
+export default clientPromise;
+Create API routes (pages/api/invoices.js):
+
+javascript
+Copy code
+import clientPromise from '../../lib/mongodb';
+
+export default async function handler(req, res) {
+  const client = await clientPromise;
+  const db = client.db('invoiceApp');
+
+  if (req.method === 'POST') {
+    const invoice = req.body;
+    const collection = db.collection('invoices');
+    await collection.insertOne(invoice);
+    res.status(201).json({ message: 'Invoice created' });
+  } else if (req.method === 'GET') {
+    const collection = db.collection('invoices');
+    const invoices = await collection.find({}).toArray();
+    res.status(200).json(invoices);
+  }
+}
+Frontend Components
+Create Form Components
+Design form using Tailwind CSS for user inputs (e.g., company details, buyer details, item details).
+
+Example form component (components/InvoiceForm.js):
+
+javascript
+Copy code
+import { useState } from 'react';
+
+const InvoiceForm = () => {
+  const [formData, setFormData] = useState({
+    company: {
+      gstin: '07NFUPS1411B1Z9',
+      name: 'EVERWIN TOOLS',
+      address: 'Extra 30/23, IInd Floor, Block-30 Extra Trilok Puri, Delhi-110091',
+      mobile: '9716966506',
+      email: 'everwintools2020@gmail.com'
+    },
+    buyer: {
+      name: '',
+      address: '',
+      gstin: '',
+      pan: ''
+    },
+    invoiceNumber: 251,
+    date: new Date().toISOString().split('T')[0],
+    dueDate: '',
+    grNo: 'Verbal',
+    vehicleNo: '',
+    transport: 'By Hand',
+    state: 'Delhi',
+    statePin: '',
+    placeOfSupply: '',
+    items: [],
+    bankDetails: {
+      bank: 'CANARA BANK',
+      branch: 'Mayur Vihar Phase-1, Delhi-110091',
+      accountNumber: '2801201000725',
+      ifsc: 'CNRB0002801',
+      accountType: 'Current Account'
+    },
+    terms: {
+      jurisdiction: 'All disputes Subject to Delhi Jurisdiction Only.',
+      noReturn: 'Goods once sold will not be taken back only Exchanged.',
+      interest: 'Interest @ 24% will be charged, if the bill is not paid on presentation.'
+    }
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const response = await fetch('/api/invoices', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    });
+    const result = await response.json();
+    if (response.ok) {
+      alert('Invoice created successfully');
+    } else {
+      alert('Error creating invoice');
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Render form fields for company, buyer, invoice details, items, etc. */}
+      {/* Example: */}
+      <div>
+        <label htmlFor="invoiceNumber">Invoice Number</label>
+        <input
+          id="invoiceNumber"
+          name="invoiceNumber"
+          type="number"
+          value={formData.invoiceNumber}
+          onChange={handleInputChange}
+          className="border p-2"
+        />
+      </div>
+      <button type="submit" className="bg-blue-500 text-white px-4 py-2">Create Invoice</button>
+    </form>
+  );
+};
+
+export default InvoiceForm;
+PDF Generation
+Generate PDF
+Use a library like pdfkit or jsPDF to generate PDF from the invoice data.
+Install the library:
+bash
+Copy code
+npm install pdfkit
+Create a function to generate PDF (lib/pdf.js):
+javascript
+Copy code
+import PDFDocument from 'pdfkit';
+import { writeFileSync } from 'fs';
+
+export const generateInvoicePDF = (invoice) => {
+  const doc = new PDFDocument();
+
+  doc.fontSize(25).text('Invoice', { align: 'center' });
+  doc.text(`Invoice Number: ${invoice.invoiceNumber}`, 100, 150);
+
+  // Add more details from the invoice object
+
+  doc.end();
+
+  writeFileSync(`invoices/${invoice.invoiceNumber}.pdf`, doc);
+};
+Deploy on AWS Amplify
+Set Up AWS Amplify
+Initialize Amplify in your project:
+bash
+Copy code
+amplify init
+Add hosting:
+bash
+Copy code
+amplify add hosting
+Configure and deploy:
+bash
+Copy code
+amplify publish
+Final Thoughts
+This setup covers the basics for building an online invoice platform with the required fields and functionalities. You will need to flesh out the form fields, validation, and add additional features like PDF generation, dropdowns, and state management as per your requirements.
