@@ -1,7 +1,7 @@
 Mongodb
 Username : everwintoolsbusiness
 Password : 7jTjqKPK8fxjPS2e
-MONGODB_URI=mongodb+srv://everwintoolsbusiness:7jTjqKPK8fxjPS2e@invoice-app.zbwjdua.mongodb.net/
+MONGODB_URI=mongodb+srv://everwintoolsbusiness: password@invoice-app.zbwjdua.mongodb.net/
 
 
 I want to build invoice app a online saas platform app using nextjs 14, for design using tailwind, for data saving use mongodb, which is have:
